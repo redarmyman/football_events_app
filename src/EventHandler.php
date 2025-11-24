@@ -6,11 +6,13 @@ class EventHandler
 {
     private FileStorage $storage;
     private StatisticsManager $statisticsManager;
+    private EventTypeStrategies $strategies;
     
     public function __construct(string $storagePath, ?StatisticsManager $statisticsManager = null)
     {
         $this->storage = new FileStorage($storagePath);
         $this->statisticsManager = $statisticsManager ?? new StatisticsManager(__DIR__ . '/../storage/statistics.txt');
+        $this->strategies = new EventTypeStrategies();
     }
     
     public function handleEvent(array $data): array
@@ -27,18 +29,14 @@ class EventHandler
         
         $this->storage->save($event);
         
-        // Update statistics for foul events
-        if ($data['type'] === 'foul') {
-            if (!isset($data['match_id']) || !isset($data['team_id'])) {
-                throw new \InvalidArgumentException('match_id and team_id are required for foul events');
-            }
-            
-            $this->statisticsManager->updateTeamStatistics(
-                $data['match_id'],
-                $data['team_id'],
-                'fouls'
-            );
-        }
+        $strategy = $this->strategies->getStrategy($data['type']);
+        $strategy->validateData($data);
+
+        $this->statisticsManager->updateTeamStatistics(
+            $data['match_id'],
+            $data['team_id'],
+            $strategy->getType()
+        );
         
         return [
             'status' => 'success',

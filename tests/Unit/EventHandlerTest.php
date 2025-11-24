@@ -30,9 +30,12 @@ class EventHandlerTest extends TestCase
     
     public function testHandleGoalEvent(): void
     {
-        $handler = new EventHandler($this->testFile);
+        $statisticsManager = new StatisticsManager($this->testStatsFile);
+        $handler = new EventHandler($this->testFile, $statisticsManager);
         
         $eventData = [
+            'match_id' => 'some_match',
+            'team_id' => 'some team',
             'type' => 'goal',
             'player' => 'John Doe',
             'minute' => 23,
@@ -55,13 +58,52 @@ class EventHandlerTest extends TestCase
         
         $handler->handleEvent([]);
     }
+
+    public function testHandleGoalEventWithoutMatchId(): void
+    {
+        $handler = new EventHandler($this->testFile);
+    
+        $eventData = [
+            'team_id' => 'some team',
+            'type' => 'goal',
+            'player' => 'John Doe',
+            'minute' => 23,
+            'second' => 34
+        ];
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('match_id and team_id are required for goal events');
+    
+        $result = $handler->handleEvent($eventData);
+    }
+
+    public function testHandleGoalEventWithoutTeamId(): void
+    {
+        $handler = new EventHandler($this->testFile);
+
+        $eventData = [
+            'match_id' => 'some_match',
+            'type' => 'goal',
+            'player' => 'John Doe',
+            'minute' => 23,
+            'second' => 34
+        ];
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('match_id and team_id are required for goal events');
+
+        $result = $handler->handleEvent($eventData);
+    }
     
     public function testEventIsSavedToFile(): void
     {
         $storage = new FileStorage($this->testFile);
-        $handler = new EventHandler($this->testFile);
+        $statisticsManager = new StatisticsManager($this->testStatsFile);
+        $handler = new EventHandler($this->testFile, $statisticsManager);
         
         $eventData = [
+            'match_id' => 'some_match',
+            'team_id' => 'some team',
             'type' => 'goal',
             'player' => 'Jane Smith'
         ];
