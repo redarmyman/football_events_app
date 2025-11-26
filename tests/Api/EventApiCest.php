@@ -19,6 +19,7 @@ class EventApiCest
         $I->sendPOST('/event', [
             'type' => 'foul',
             'player' => 'William Saliba',
+            'affected_player' => 'Johny Bravo',
             'team_id' => 'arsenal',
             'match_id' => 'm1',
             'minute' => 45,

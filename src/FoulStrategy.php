@@ -2,7 +2,7 @@
 
 namespace App;
 
-class FoulStrategy
+class FoulStrategy extends BaseStrategy
 {
     public function support(string $type): bool
     {
@@ -11,8 +11,10 @@ class FoulStrategy
 
     public function validateData(array $data): void
     {
-        if (!isset($data['match_id']) || !isset($data['team_id'])) {
-            throw new \InvalidArgumentException('match_id and team_id are required for foul events');
+        parent::validateData($data);
+
+        if (!isset($data['affected_player'])) {
+            throw new \InvalidArgumentException('affected_player is required for foul events');
         }
     }
 

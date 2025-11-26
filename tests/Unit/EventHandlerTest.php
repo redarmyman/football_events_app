@@ -38,6 +38,7 @@ class EventHandlerTest extends TestCase
             'team_id' => 'some team',
             'type' => 'goal',
             'player' => 'John Doe',
+            'assisting_player' => 'Fred Flinstone',
             'minute' => 23,
             'second' => 34
         ];
@@ -94,6 +95,25 @@ class EventHandlerTest extends TestCase
 
         $result = $handler->handleEvent($eventData);
     }
+
+    public function testHandleGoalEventWithoutAssistingPlayer(): void
+    {
+        $handler = new EventHandler($this->testFile);
+
+        $eventData = [
+            'match_id' => 'some_match',
+            'team_id' => 'some team',
+            'type' => 'goal',
+            'player' => 'John Doe',
+            'minute' => 23,
+            'second' => 34
+        ];
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('assisiting_player is required for goal events');
+
+        $result = $handler->handleEvent($eventData);
+    }
     
     public function testEventIsSavedToFile(): void
     {
@@ -105,7 +125,8 @@ class EventHandlerTest extends TestCase
             'match_id' => 'some_match',
             'team_id' => 'some team',
             'type' => 'goal',
-            'player' => 'Jane Smith'
+            'player' => 'Jane Smith',
+            'assisting_player' => 'Johny Bravo',
         ];
         
         $handler->handleEvent($eventData);
@@ -124,6 +145,7 @@ class EventHandlerTest extends TestCase
         $eventData = [
             'type' => 'foul',
             'player' => 'William Saliba',
+            'affected_player' => 'Johny Bravo',
             'team_id' => 'arsenal',
             'match_id' => 'm1',
             'minute' => 45,
@@ -150,6 +172,7 @@ class EventHandlerTest extends TestCase
         $eventData1 = [
             'type' => 'foul',
             'player' => 'John Doe',
+            'affected_player' => 'Johny Bravo',
             'team_id' => 'team_a',
             'match_id' => 'match_1',
             'minute' => 15,
@@ -159,6 +182,7 @@ class EventHandlerTest extends TestCase
         $eventData2 = [
             'type' => 'foul',
             'player' => 'Jane Smith',
+            'affected_player' => 'Johny Bravo',
             'team_id' => 'team_a',
             'match_id' => 'match_1',
             'minute' => 30,

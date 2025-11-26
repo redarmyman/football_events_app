@@ -2,7 +2,7 @@
 
 namespace App;
 
-class GoalStrategy
+class GoalStrategy extends BaseStrategy
 {
     public function support(string $type): bool
     {
@@ -11,8 +11,10 @@ class GoalStrategy
 
     public function validateData(array $data): void
     {
-        if (!isset($data['match_id']) || !isset($data['team_id'])) {
-            throw new \InvalidArgumentException('match_id and team_id are required for goal events');
+        parent::validateData($data);
+
+        if (!isset($data['assisting_player'])) {
+            throw new \InvalidArgumentException('assisiting_player is required for goal events');
         }
     }
 
